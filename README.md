@@ -15,7 +15,7 @@ module "ecs-service-autoscaling-cloudwatch" {
 
   enabled = true
 
-	name_prefix = "test-sqs-scalling"
+  name_prefix = "test-sqs-scalling"
 
   min_capacity = 2
   max_capacity = 22
