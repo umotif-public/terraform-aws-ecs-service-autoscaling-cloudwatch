@@ -4,24 +4,40 @@ Terraform module to configure ECS Service autoscaling using CloudWatch metrics
 
 ## Terraform versions
 
-Terraform 0.12. Pin module version to `~> v1.0`. Submit pull-requests to `master` branch.
+Terraform 0.12. Pin module version to `~> v2.0`. Submit pull-requests to `master` branch.
 
 ## Usage
 
 ```hcl
 module "ecs-service-autoscaling-cloudwatch" {
   source = "umotif-public/ecs-service-autoscaling-cloudwatch/aws"
-  version = "~> 1.0.0"
+  version = "~> 2.0.0"
 
   enabled = true
 
   name_prefix = "test-sqs-scalling"
 
-  min_capacity = 2
-  max_capacity = 22
+  min_capacity = 1
+  max_capacity = 20
 
   cluster_name = "dev-ecs"
   service_name = "dev-actions"
+
+  scale_up_step_adjustment = [
+    {
+      scaling_adjustment          = 2
+      metric_interval_lower_bound = 0
+      metric_interval_upper_bound = "" # indicates inifinity
+    }
+  ]
+
+  scale_down_step_adjustment = [
+    {
+      scaling_adjustment          = -4
+      metric_interval_upper_bound = 0
+      metric_interval_lower_bound = ""
+    }
+  ]
 
   metric_query = [
     {
@@ -79,15 +95,11 @@ Module managed by [Marcin Cuber](https://github.com/marcincuber) [LinkedIn](http
 | min\_capacity | Minimum number of tasks to scale to | `string` | `"2"` | no |
 | name\_prefix | A prefix used for naming resources. | `string` | n/a | yes |
 | scale\_down\_cooldown | The amount of time, in seconds, after a scaling down completes and before the next scaling activity can start | `string` | `"60"` | no |
-| scale\_down\_lower\_bound | The lower bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as negative infinity | `string` | `""` | no |
 | scale\_down\_min\_adjustment\_magnitude | Minimum number of tasks to scale down at a time | `string` | `"0"` | no |
-| scale\_down\_scaling\_adjustment | The number of members by which to scale down, when the adjustment bounds are breached. Should always be negative value | `string` | `"-2"` | no |
-| scale\_down\_upper\_bound | The upper bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as infinity | `string` | `"0"` | no |
+| scale\_down\_step\_adjustment | A set of adjustments that manage scaling. Requires at least one object inside the list containing: `metric_interval_lower_bound`, `metric_interval_upper_bound`, `scaling_adjustment`. | `list(object({ metric_interval_lower_bound = string, metric_interval_upper_bound = string, scaling_adjustment = string }))` | `[]` | no |
 | scale\_up\_cooldown | The amount of time, in seconds, after a scaling up completes and before the next scaling up can start | `string` | `"60"` | no |
-| scale\_up\_lower\_bound | The lower bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as negative infinity | `string` | `"0"` | no |
 | scale\_up\_min\_adjustment\_magnitude | Minimum number of tasks to scale up at a time | `string` | `"0"` | no |
-| scale\_up\_scaling\_adjustment | The number of members by which to scale up, when the adjustment bounds are breached. Should always be positive value | `string` | `"4"` | no |
-| scale\_up\_upper\_bound | The upper bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as infinity | `string` | `""` | no |
+| scale\_up\_step\_adjustment | A set of adjustments that manage scaling. Requires at least one object inside the list containing: `metric_interval_lower_bound`, `metric_interval_upper_bound`, `scaling_adjustment`. | `list(object({ metric_interval_lower_bound = string, metric_interval_upper_bound = string, scaling_adjustment = string }))` | `[]` | no |
 | service\_name | Name of ECS service to autoscale | `string` | n/a | yes |
 | tags | A mapping of tags to assign to all resources | `map(string)` | `{}` | no |
 

@@ -17,7 +17,7 @@ resource "aws_appautoscaling_target" "target" {
 resource "aws_appautoscaling_policy" "scale_up" {
   count = var.enabled ? 1 : 0
 
-  name               = "sqs-scale-up"
+  name               = "${var.name_prefix}-scale-up"
   policy_type        = "StepScaling"
   resource_id        = "service/${var.cluster_name}/${var.service_name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -29,10 +29,13 @@ resource "aws_appautoscaling_policy" "scale_up" {
     metric_aggregation_type  = "Average"
     min_adjustment_magnitude = var.scale_up_min_adjustment_magnitude
 
-    step_adjustment {
-      metric_interval_lower_bound = var.scale_up_lower_bound
-      metric_interval_upper_bound = var.scale_up_upper_bound
-      scaling_adjustment          = var.scale_up_scaling_adjustment
+    dynamic "step_adjustment" {
+      for_each = var.scale_up_step_adjustment
+      content {
+        metric_interval_lower_bound = lookup(step_adjustment.value, "metric_interval_lower_bound")
+        metric_interval_upper_bound = lookup(step_adjustment.value, "metric_interval_upper_bound")
+        scaling_adjustment          = lookup(step_adjustment.value, "scaling_adjustment")
+      }
     }
   }
 
@@ -42,7 +45,7 @@ resource "aws_appautoscaling_policy" "scale_up" {
 resource "aws_appautoscaling_policy" "scale_down" {
   count = var.enabled ? 1 : 0
 
-  name               = "sqs-scale-down"
+  name               = "${var.name_prefix}-scale-down"
   policy_type        = "StepScaling"
   resource_id        = "service/${var.cluster_name}/${var.service_name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -54,10 +57,13 @@ resource "aws_appautoscaling_policy" "scale_down" {
     metric_aggregation_type  = "Average"
     min_adjustment_magnitude = var.scale_down_min_adjustment_magnitude
 
-    step_adjustment {
-      metric_interval_lower_bound = var.scale_down_lower_bound
-      metric_interval_upper_bound = var.scale_down_upper_bound
-      scaling_adjustment          = var.scale_down_scaling_adjustment
+    dynamic "step_adjustment" {
+      for_each = var.scale_down_step_adjustment
+      content {
+        metric_interval_lower_bound = lookup(step_adjustment.value, "metric_interval_lower_bound")
+        metric_interval_upper_bound = lookup(step_adjustment.value, "metric_interval_upper_bound")
+        scaling_adjustment          = lookup(step_adjustment.value, "scaling_adjustment")
+      }
     }
   }
 
@@ -68,11 +74,11 @@ resource "aws_appautoscaling_policy" "scale_down" {
 # CloudWatch Alerts
 #####
 
-resource "aws_cloudwatch_metric_alarm" "service_queue_high" {
+resource "aws_cloudwatch_metric_alarm" "high" {
   count = var.enabled ? 1 : 0
 
-  alarm_name          = "${var.name_prefix}-sqs-queue-high"
-  alarm_description   = "Alarm monitors SQS Queue count utilization for scaling up"
+  alarm_name          = "${var.name_prefix}-alarm-high"
+  alarm_description   = "Alarm monitors high utilization for scaling up"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = var.high_evaluation_periods
   threshold           = var.high_threshold
@@ -105,11 +111,11 @@ resource "aws_cloudwatch_metric_alarm" "service_queue_high" {
   depends_on = [aws_appautoscaling_policy.scale_up]
 }
 
-resource "aws_cloudwatch_metric_alarm" "service_queue_low" {
+resource "aws_cloudwatch_metric_alarm" "low" {
   count = var.enabled ? 1 : 0
 
-  alarm_name          = "${var.name_prefix}-sqs-queue-low"
-  alarm_description   = "Alarm monitors SQS Queue count utilization for scaling down."
+  alarm_name          = "${var.name_prefix}-alarm-low"
+  alarm_description   = "Alarm monitors low utilization for scaling down."
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = var.low_evaluation_periods
   threshold           = var.low_threshold
