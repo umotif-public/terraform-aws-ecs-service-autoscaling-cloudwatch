@@ -80,42 +80,6 @@ variable "scale_up_min_adjustment_magnitude" {
   default     = "0"
 }
 
-variable "scale_down_scaling_adjustment" {
-  type        = string
-  description = "The number of members by which to scale down, when the adjustment bounds are breached. Should always be negative value"
-  default     = "-2"
-}
-
-variable "scale_down_lower_bound" {
-  type        = string
-  description = "The lower bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as negative infinity"
-  default     = ""
-}
-
-variable "scale_down_upper_bound" {
-  type        = string
-  description = "The upper bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as infinity"
-  default     = "0"
-}
-
-variable "scale_up_scaling_adjustment" {
-  type        = string
-  description = "The number of members by which to scale up, when the adjustment bounds are breached. Should always be positive value"
-  default     = "4"
-}
-
-variable "scale_up_lower_bound" {
-  type        = string
-  description = "The lower bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as negative infinity"
-  default     = "0"
-}
-
-variable "scale_up_upper_bound" {
-  type        = string
-  description = "The upper bound for the difference between the alarm threshold and the CloudWatch metric. Without a value, AWS will treat this bound as infinity"
-  default     = ""
-}
-
 variable "high_evaluation_periods" {
   type        = string
   description = "The number of periods over which data is compared to the high threshold"
@@ -139,3 +103,16 @@ variable "low_threshold" {
   description = "The value against which the low statistic is compared"
   default     = "10"
 }
+
+variable "scale_up_step_adjustment" {
+  type        = list(object({ metric_interval_lower_bound = string, metric_interval_upper_bound = string, scaling_adjustment = string }))
+  description = "A set of adjustments that manage scaling. Requires at least one object inside the list containing: `metric_interval_lower_bound`, `metric_interval_upper_bound`, `scaling_adjustment`."
+  default     = []
+}
+
+variable "scale_down_step_adjustment" {
+  type        = list(object({ metric_interval_lower_bound = string, metric_interval_upper_bound = string, scaling_adjustment = string }))
+  description = "A set of adjustments that manage scaling. Requires at least one object inside the list containing: `metric_interval_lower_bound`, `metric_interval_upper_bound`, `scaling_adjustment`."
+  default     = []
+}
+
