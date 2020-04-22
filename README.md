@@ -72,6 +72,10 @@ Module is to be used with Terraform > 0.12.
 Module managed by [Marcin Cuber](https://github.com/marcincuber) [LinkedIn](https://www.linkedin.com/in/marcincuber/).
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+No requirements.
+
 ## Providers
 
 | Name | Version |
@@ -81,7 +85,7 @@ Module managed by [Marcin Cuber](https://github.com/marcincuber) [LinkedIn](http
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | adjustment\_type\_down | Autoscaling policy down adjustment type (ExactCapacity, ChangeInCapacity, PercentChangeInCapacity) | `string` | `"ChangeInCapacity"` | no |
 | adjustment\_type\_up | Autoscaling policy up adjustment type (ExactCapacity, ChangeInCapacity, PercentChangeInCapacity) | `string` | `"ChangeInCapacity"` | no |
 | cluster\_name | Name of ECS cluster that service is in | `string` | n/a | yes |
@@ -125,4 +129,7 @@ See LICENSE for full details.
 
 ```bash
 brew install pre-commit terraform-docs tflint
+
+brew tap git-chglog/git-chglog
+brew install git-chglog
 ```
