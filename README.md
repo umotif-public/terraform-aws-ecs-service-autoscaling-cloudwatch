@@ -1,3 +1,5 @@
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/umotif-public/terraform-aws-ecs-service-autoscaling-cloudwatch?style=social)
+
 # terraform-aws-ecs-service-autoscaling-cloudwatch
 
 Terraform module to configure ECS Service autoscaling using CloudWatch metrics
